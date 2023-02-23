@@ -13,12 +13,8 @@ import Grid from '@material-ui/core/Grid'
 import Toolbar from '@material-ui/core/Toolbar'
 import Typography from '@material-ui/core/Typography'
 import { withStyles } from '@material-ui/core/styles'
-import { Link } from 'react-router-dom'
 import TextField from '@mui/material/TextField'
 import Box from '@mui/material/Box'
-import { LocalizationProvider } from '@mui/x-date-pickers-pro'
-import { AdapterDayjs } from '@mui/x-date-pickers-pro/AdapterDayjs'
-import { DateRangePicker } from '@mui/x-date-pickers-pro/DateRangePicker'
 import axios from 'axios'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
@@ -79,7 +75,6 @@ function Album(props) {
     const { classes } = props
     const { logout } = AuthUser()
     const [items, setItems] = useState([])
-    const [value, setValue] = useState([null, null])
     const [title, setTitle] = useState('')
     const [source, setSource] = useState('NewsAPI')
     const [category, setCategory] = useState('General')
@@ -104,7 +99,7 @@ function Album(props) {
         setLoading(true)
         try {
             const res = await axios.get(
-                `https://content.guardianapis.com/search?api-key=09b6fd53-6633-430e-956a-f55dd315dd71`
+                `https://content.guardianapis.com/search?q=${title}&api-key=09b6fd53-6633-430e-956a-f55dd315dd71`
             )
             if (res.status === 200) {
                 setItems(
@@ -127,12 +122,27 @@ function Album(props) {
     const NytimeNew = async () => {
         setLoading(true)
         try {
+            const res = await axios.get(
+                `https://api.nytimes.com/svc/search/v2/articlesearch.json?q=${title}&api-key=cHnHFhmnBppknQEqsWUFsd2q5smmhG2Q`
+            )
+            if (res.status === 200) {
+                setItems(
+                    res.data.response.docs.map((item) => {
+                        return {
+                            title: item.abstract,
+                            description: item.lead_paragraph,
+                            publishedAt: item.webPublicationDate,
+                            urlToImage: null,
+                            url: item.web_url,
+                        }
+                    })
+                )
+            }
         } catch (err) {
             console.error(err)
         }
         setLoading(false)
     }
-
     const searchNews = () => {
         if (source === 'NewsAPI') fetchNewApi()
         else if (source === 'GuardianNews') fetchGuardianNew()
@@ -143,22 +153,15 @@ function Album(props) {
         <React.Fragment>
             <CssBaseline />
 
-            <AppBar position="static" className={classes.appBar} color="black">
+            <AppBar
+                position="static"
+                className={classes.appBar}
+                color="secondary"
+            >
                 <Toolbar>
                     <Button onClick={logout} color="inherit">
                         logout
                     </Button>
-                    <Link
-                        to="/setting"
-                        style={{
-                            textDecoration: 'none',
-                            color: 'black',
-                            fontSize: '16px',
-                            fontWeight: 'semibold',
-                        }}
-                    >
-                        Setting
-                    </Link>
                 </Toolbar>
             </AppBar>
             <main>
@@ -167,37 +170,6 @@ function Album(props) {
                     <div className={classes.heroContent}>
                         <div className={classes.heroButtons}>
                             <Grid container spacing={16} justify="center">
-                                <Box mb={2}>
-                                    <LocalizationProvider
-                                        dateAdapter={AdapterDayjs}
-                                        localeText={{
-                                            start: 'Check-in',
-                                            end: 'Check-out',
-                                        }}
-                                    >
-                                        <DateRangePicker
-                                            value={value}
-                                            onChange={(newValue) => {
-                                                setValue(newValue)
-                                            }}
-                                            renderInput={(
-                                                startProps,
-                                                endProps
-                                            ) => (
-                                                <React.Fragment>
-                                                    <TextField
-                                                        {...startProps}
-                                                    />
-                                                    <Box sx={{ mx: 2 }}>
-                                                        {' '}
-                                                        to{' '}
-                                                    </Box>
-                                                    <TextField {...endProps} />
-                                                </React.Fragment>
-                                            )}
-                                        />
-                                    </LocalizationProvider>
-                                </Box>
                                 <Grid container spacing={2} justify="center">
                                     <Box sx={{ minWidth: 200, mt: 1 }}>
                                         <FormControl fullWidth>

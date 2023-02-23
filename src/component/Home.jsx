@@ -5,11 +5,6 @@ import { Toast } from '../util/toast'
 import Album from './Album'
 import { Box } from '@mui/material'
 
-// import './Search.css'
-// import { format } from 'date-fns'
-// import { DateRange } from 'react-date-range'
-// import 'react-date-range/dist/styles.css' // main style file
-// import 'react-date-range/dist/theme/default.css' // theme css file
 function Home() {
     const { getToken } = AuthUser()
 

@@ -33,7 +33,7 @@ export default function AuthUser() {
   };
 
   const http = axios.create({
-    baseURL: "http://learning.test/api",
+    baseURL: "http://news-backend.test/api",
     headers: {
       "Content-type": "application/json",
       Authorization: `Bearer ${token}`,
